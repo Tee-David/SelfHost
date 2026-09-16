@@ -17,7 +17,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --ignore-scripts
-      - run: npm audit --audit-level=high
-      - run: npm run typecheck
-      - run: npm test
+      - name: Generate dependency graph from exact pins
+        run: npm install --package-lock-only --ignore-scripts --audit=false
+      - name: Install from generated lock
+        run: npm ci --ignore-scripts
+      - name: Audit high and critical vulnerabilities
+        run: npm audit --audit-level=high
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+      - name: Verify release structure
+        run: npm run verify:release
