@@ -1,10 +1,12 @@
+<p align="center">
+  <img src="assets/selfhost-social-preview.png" alt="SelfHost — Your Server. Your Rules." width="100%" />
+</p>
+
 # SelfHost
 
 **A secure, open-source control plane for your own server.**
 
-SelfHost is a modern TypeScript interface for managing common self-hosted infrastructure without turning the web application into a general-purpose root shell. The project is being built around explicit, reviewable integrations with HestiaCP and optional infrastructure providers.
-
-> **Pre-release:** this repository is currently undergoing a security and open-source readiness migration. It is not ready for public deployment or publication yet. See [`RELEASE_READINESS.md`](RELEASE_READINESS.md).
+SelfHost is a modern TypeScript interface for managing common self-hosted infrastructure without turning the web application into a general-purpose root shell. The project is built around explicit, reviewable integrations with HestiaCP and optional infrastructure providers.
 
 ## Why SelfHost
 
@@ -21,9 +23,9 @@ SelfHost does not try to reimplement the services a mature hosting stack already
 - **Reviewable infrastructure code.** Security-sensitive boundaries stay small, typed, documented and tested.
 - **Reproducible development.** A contributor should be able to build and test the project without access to the maintainer's infrastructure.
 
-## Planned capabilities
+## Capabilities
 
-The private prototype already explored management flows for websites, SSL, DNS, mail, databases, backups, cron, files, FTP, logs, metrics, performance, security, uptime, WordPress and server operations. These capabilities are being selectively migrated only after security and portability review.
+SelfHost's hardened control-plane foundation includes typed integrations for websites and domains, SSL, DNS zones and records, mail domains and accounts, databases, backups, cron inventory, services and firewall inventory. Higher-risk operations are intentionally introduced only when their authorization and privilege boundaries are narrow enough to review and test.
 
 ## Architecture
 
@@ -49,19 +51,15 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for trust boundaries and desi
 
 ## Configuration
 
-No real server identifiers or credentials are included. Start from [`.env.example`](.env.example); cloud integrations are optional and must be configured explicitly.
-
-The full development quick start will be published once the clean application skeleton and reproducible dependency set are committed and verified.
+No real server identifiers or credentials are included. Start from [`.env.example`](.env.example); cloud integrations are optional and must be configured explicitly. See [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) and [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for configuration and contributor setup.
 
 ## Security
 
-SelfHost is infrastructure software and should be treated as security-sensitive. Please read [`SECURITY.md`](SECURITY.md) before deploying or reporting a vulnerability. The migration audit is tracked in [`docs/SOURCE_AUDIT.md`](docs/SOURCE_AUDIT.md).
+SelfHost is infrastructure software and should be treated as security-sensitive. Please read [`SECURITY.md`](SECURITY.md) and [`docs/SECURITY_MODEL.md`](docs/SECURITY_MODEL.md) before deploying or reporting a vulnerability. The source migration audit is documented in [`docs/SOURCE_AUDIT.md`](docs/SOURCE_AUDIT.md).
 
-## Project status
+## Contributing
 
-SelfHost is being prepared as a new open-source project from a private prototype. The private source is reference material, not a repository that will simply be made public. Every migrated component is being reviewed for secrets, environment-specific assumptions, privilege boundaries, dependency quality and redistribution safety.
-
-The repository must remain private until the release-readiness checklist passes and the maintainer explicitly approves publication.
+Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), follow the security boundaries documented in the repository, and keep privileged operations explicit, typed and testable.
 
 ## Maintainer
 
@@ -69,4 +67,4 @@ Created and maintained by **Taiwo David Dayomola, Senior Software Engineer**.
 
 ## License
 
-The intended source license is Apache License 2.0, subject to the final third-party dependency and asset review before publication.
+SelfHost is licensed under the [Apache License 2.0](LICENSE).
