@@ -19,6 +19,13 @@ jobs:
           node-version: 22
       - name: Generate dependency graph from exact pins
         run: npm install --package-lock-only --ignore-scripts --audit=false
+      - name: Export generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Install from generated lock
         run: npm ci --ignore-scripts
       - name: Audit high and critical vulnerabilities
