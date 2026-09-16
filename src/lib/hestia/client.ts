@@ -2,22 +2,26 @@ import path from "node:path";
 import type { SelfHostConfig } from "../config";
 import { runCommand, type CommandResult } from "../command-runner";
 import { assertHestiaUser } from "./validation";
+import { integer, yes, type Database, type DnsZone, type HestiaRecordMap, type MailDomain, type WebDomain } from "./types";
 
 const SUDO = "/usr/bin/sudo";
-const ALLOWED_COMMANDS = new Set(["v-list-web-domains", "v-list-databases", "v-list-mail-domains", "v-list-dns-domains"]);
+const ALLOWED_COMMANDS = new Set([
+  "v-list-web-domains", "v-list-databases", "v-list-mail-domains", "v-list-dns-domains",
+  "v-list-user-backups", "v-list-cron-jobs", "v-list-sys-services", "v-list-firewall",
+]);
 
 export class HestiaResponseError extends Error {
-  constructor(message = "Hestia returned an invalid response") {
-    super(message);
-    this.name = "HestiaResponseError";
-  }
+  constructor(message = "Hestia returned an invalid response") { super(message); this.name = "HestiaResponseError"; }
 }
 
-function parseJsonObject(stdout: string): Record<string, unknown> {
+function parseJsonObject(stdout: string): HestiaRecordMap {
   try {
     const value: unknown = JSON.parse(stdout);
     if (!value || typeof value !== "object" || Array.isArray(value)) throw new HestiaResponseError();
-    return value as Record<string, unknown>;
+    for (const record of Object.values(value as Record<string, unknown>)) {
+      if (!record || typeof record !== "object" || Array.isArray(record)) throw new HestiaResponseError();
+    }
+    return value as HestiaRecordMap;
   } catch (error) {
     if (error instanceof HestiaResponseError) throw error;
     throw new HestiaResponseError();
@@ -33,13 +37,28 @@ export class HestiaClient {
     return runCommand({ executable: SUDO, args: ["-n", executable, ...args] });
   }
 
-  private async list(command: string, user: string): Promise<Record<string, unknown>> {
-    const result = await this.execute(command, [assertHestiaUser(user), "json"]);
+  private async list(command: string, args: readonly string[] = []): Promise<HestiaRecordMap> {
+    const result = await this.execute(command, [...args, "json"]);
     return parseJsonObject(result.stdout);
   }
 
-  listWebDomains(user = this.config.hestia.user) { return this.list("v-list-web-domains", user); }
-  listDatabases(user = this.config.hestia.user) { return this.list("v-list-databases", user); }
-  listMailDomains(user = this.config.hestia.user) { return this.list("v-list-mail-domains", user); }
-  listDnsDomains(user = this.config.hestia.user) { return this.list("v-list-dns-domains", user); }
+  async listWebDomains(user = this.config.hestia.user): Promise<WebDomain[]> {
+    const data = await this.list("v-list-web-domains", [assertHestiaUser(user)]);
+    return Object.entries(data).map(([domain, d]) => ({ domain, ip: d.IP ?? "", ssl: yes(d.SSL), letsEncrypt: yes(d.LETSENCRYPT), suspended: yes(d.SUSPENDED), aliases: (d.ALIAS ?? "").split(",").map(v => v.trim()).filter(Boolean), bandwidthMb: integer(d.U_BANDWIDTH), diskMb: integer(d.U_DISK) }));
+  }
+
+  async listDatabases(user = this.config.hestia.user): Promise<Database[]> {
+    const data = await this.list("v-list-databases", [assertHestiaUser(user)]);
+    return Object.entries(data).map(([name, d]) => ({ name, type: d.TYPE ?? "", user: d.DBUSER ?? "", sizeMb: integer(d.U_DISK), host: d.HOST ?? "localhost" }));
+  }
+
+  async listMailDomains(user = this.config.hestia.user): Promise<MailDomain[]> {
+    const data = await this.list("v-list-mail-domains", [assertHestiaUser(user)]);
+    return Object.entries(data).map(([domain, d]) => ({ domain, accounts: integer(d.ACCOUNTS), dkim: yes(d.DKIM), antispam: yes(d.ANTISPAM), antivirus: yes(d.ANTIVIRUS) }));
+  }
+
+  async listDnsZones(user = this.config.hestia.user): Promise<DnsZone[]> {
+    const data = await this.list("v-list-dns-domains", [assertHestiaUser(user)]);
+    return Object.entries(data).map(([domain, d]) => ({ domain, ip: d.IP ?? "", records: integer(d.RECORDS), ns1: d.NS1 ?? "", ns2: d.NS2 ?? "" }));
+  }
 }
