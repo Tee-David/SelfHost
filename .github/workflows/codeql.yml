@@ -11,6 +11,9 @@ permissions:
   security-events: write
 jobs:
   analyze:
+    # GitHub currently rejects SARIF uploads for this private repository.
+    # The workflow activates automatically when the publication gate is opened.
+    if: ${{ github.event.repository.private == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
