@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a focused improvement to SelfHost
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve SelfHost. Please describe the problem before proposing implementation details.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What self-hosting workflow is difficult or unsafe today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: What should SelfHost do instead?
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and privilege impact
+      description: Does this require filesystem, sudo, network, credential, or infrastructure access?
+    validations:
+      required: true
